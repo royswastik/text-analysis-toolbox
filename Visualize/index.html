@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body { font-family: Arial;}
+
+.axis, .axis path {
+  fill: none;
+  stroke: #ACB849;
+}
+text {
+  stroke: none;
+  fill: #666666;
+}
+
+</style>
+<body>
+  <svg id="clusteranalysis" width="800" height="500"></svg>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+
+var svg = d3.select("#clusteranalysis"),
+    margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = +svg.attr("width"),
+    height = +svg.attr("height"),
+    domainwidth = width - margin.left - margin.right,
+    domainheight = height - margin.top - margin.bottom;
+
+//Scaling X and Y Values from original coordinates
+var x = d3.scaleLinear()
+    .domain([-10,10])
+    .range(padExtent([0, domainwidth]));
+var y = d3.scaleLinear()
+    .domain([-10,10])
+    .range(padExtent([domainheight, 0]));
+
+
+//scaling radius to 360
+var r = d3.scaleLinear()
+    .domain([0,10])
+    .range([0, 360]);
+
+
+var g = svg.append("g")
+    .attr("transform", "translate(" + margin.top + "," + margin.top + ")");
+
+
+//Color allocation base don the cluster if for dots and circles.
+var color = d3.scaleOrdinal()
+    .domain([1,2,3,4,5,6,7,8,9,10])
+    .range(["#60B19C", "#A72D73", "#3498db", "#b03a2e", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58", "#FF69B4"]);
+
+
+g.append("rect")
+    .attr("width", width - margin.left - margin.right)
+    .attr("height", height - margin.top - margin.bottom)
+    .attr("fill", "#F6F6F6");
+
+
+// Data Processing Start
+var lookup = {};
+var noofclusters = [];
+var clusterdata = [];
+
+d3.json("data1.json", function(error, data) {
+    if (error) throw error;
+    console.log(data);
+    data.forEach(function(d) {
+        d.cluster_id = +d.cluster_id;
+        d.x_coord = +d.x_coord;
+        d.y_coord = +d.y_coord;
+
+        //Finding the no of clusters
+        if (!(d.cluster_id in lookup)) {
+            lookup[d.cluster_id] = 1;
+            noofclusters.push(d.cluster_id);
+        }
+    });
+
+    //filter the objects by cluster
+    for(var i=1;i<=noofclusters.length;i++){
+        var filtered=data.filter(function(item){
+            return item.cluster_id==i;
+        });
+        clusterdata.push(filtered);
+    }
+
+
+    //Code to find the centroid coordinates and radius to the farthest point
+    var circlecoords = [];
+    var i =0;
+    var cd;
+    clusterdata.forEach(function(c){
+        if(c.length>1){
+            var coord = {};
+            var CX = d3.mean(c, function(d) {return d.x_coord;});
+            var CY = d3.mean(c, function(d) { return d.y_coord; });
+            console.log(CX);
+
+            var max = 0;
+            var rad = 0;
+            c.forEach(function(a){
+                var xs = a.x_coord - CX;
+                var ys = a.y_coord - CY;
+                cd = a.cluster_id;
+                xs *= xs;
+                ys *= ys;
+                if(max < Math.sqrt( xs + ys ) ){
+                    max = Math.sqrt( xs + ys );
+                    rad = Math.sqrt( xs + ys );
+                    console.log("rad");
+                }
+
+            });
+            console.log(rad);
+            coord["x"] = CX;
+            coord["y"] = CY;
+            coord["r"] = rad;
+            coord["cd"] = cd;
+            ++i;
+            circlecoords.push(coord);
+        }
+    });
+
+
+    //appending points to the canvas
+    g.selectAll("dot")
+      .data(data)
+      .enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", 3)
+      .attr("cx", function(d) { return x(d.x_coord); })
+      .attr("cy", function(d) { return y(d.y_coord); })
+        .style("fill", function(d) {
+            return color(d.cluster_id);
+        });
+
+  g.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + y.range()[0] / 2 + ")")
+      .call(d3.axisBottom(x).ticks(5));
+
+    g.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + x.range()[1] / 2 + ", 0)")
+      .call(d3.axisLeft(y).ticks(5));
+
+
+    //appending clusters to the canvas, It's a circle from centroid to the farthest point that cluster
+    g.selectAll("bigcircle")
+        .data(circlecoords)
+        .enter().append("circle")
+        .attr("class", "yellow dot")
+        .transition().duration(2000)
+        .attr("r", function(m){return r(m.r);})
+        .attr("cx", function(m){return x(m.x);})
+        .attr("cy", function(m){return y(m.y);})
+        .attr("fill-opacity", "0.2")
+        .style("fill", function(m) {
+            return color(m.cd);
+        })
+});
+
+function padExtent(e, p) {
+  	if (p === undefined) p = 1;
+  	return ([e[0] - p, e[1] + p]);
+}
+</script>
+</body>

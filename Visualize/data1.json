@@ -1,0 +1,48 @@
+[
+    {
+        "x_coord": 4,
+        "y_coord": 4,
+        "cluster_id": 1,
+        "sentence": "sentence 1"
+    },
+    {
+        "x_coord": 10,
+        "y_coord": 10,
+        "cluster_id": 1
+    },
+    {
+        "x_coord": 6,
+        "y_coord": 6,
+        "cluster_id": 1
+    },
+    {
+        "x_coord": 1,
+        "y_coord": 1,
+        "cluster_id": 2
+    },
+    {
+        "x_coord": 3,
+        "y_coord": 3,
+        "cluster_id": 2
+    },
+    {
+        "x_coord": 5,
+        "y_coord": -5,
+        "cluster_id": 3
+    },
+    {
+        "x_coord": 8,
+        "y_coord": -8,
+        "cluster_id": 3
+    },
+    {
+        "x_coord": -3,
+        "y_coord": 3,
+        "cluster_id": 4
+    },
+    {
+        "x_coord": -6,
+        "y_coord": 6,
+        "cluster_id": 4
+    }
+]
