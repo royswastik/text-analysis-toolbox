@@ -4,5 +4,7 @@ numpy
 gensim
 pandas
 nltk
-stop_words
+stop-words
 pandas
+pytorch
+torchvision
