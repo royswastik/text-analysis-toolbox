@@ -1,0 +1,8 @@
+Flask
+scikit-learn
+numpy
+gensim
+pandas
+nltk
+stop_words
+pandas
