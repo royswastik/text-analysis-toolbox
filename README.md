@@ -10,6 +10,7 @@ Text Analysis using sentence embedding and LDA.
     - nltk.download("punkt")
     - nltk.download("stopwords")
     - nltk.download("wordnet")
+    - nltk.download()
 4. Under client directory, run "FLASK_APP=server.py flask run"
 
 ####System Requirements
