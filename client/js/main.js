@@ -42,7 +42,7 @@ function loadD3(){
                 'preparation']
             ];
 
-                getAnalysis("LDA");
+                // getAnalysis("LDA");
         });
 }
 
