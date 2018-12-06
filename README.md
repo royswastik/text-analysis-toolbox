@@ -29,7 +29,7 @@ Or, if you want setup application on your own system, follow the below rules,
 2. Ensure all dependencies are installed.
 3. Do all steps except step 6 for instruction on starting the server.
 4. Run "python test.py"
-5. The output will show Precision, Recall and Accuracy.
+5. The output will show Precision, Recall and F1 Score.
 
 #####Note
 You might face problem while installing torch using pip, because the installation depends on the version of your
