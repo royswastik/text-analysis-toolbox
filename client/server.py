@@ -45,6 +45,7 @@ def get2DVectors():
     return jsonify(res)
 
 
+
 @app.route("/api/getClustersWord2Vec", methods=['POST'])
 def getWord2Vec_TopicClusters():
     post = request.get_json()
@@ -76,29 +77,10 @@ def getWord2Vec_TopicClusters():
 def getLDA_TopicClusters():
     post = request.get_json()
     print(post)
-    start_page = int(post["start"])
-    end_page = int(post["end"])
-    db_selected = int(post["selected"])
-    if db_selected == 0:
-        df = pd.read_csv("cleaned_hm.csv")
-        dfRange = df.iloc[start_page:end_page]
-        cleaned_text = dfRange["cleaned_hm"].tolist()
-        docs = []
-        for l in cleaned_text:
-            docs.append(l.split())
-    elif db_selected==1:
-        df = pd.read_csv("articles.csv")
-        dfRange = df.iloc[start_page:end_page]
-        text = dfRange["text"].tolist()
-        docs = []
-        for l in text:
-            docs.append(l.split())
-    else:
-        docs = post["docs"]
-    
-    # tokenizer = RegexpTokenizer(r'\w+')
 
-    # p_stemmer = PorterStemmer()
+    oldDocs = post["docs"]
+    docs = getDocumentsFromDocs(oldDocs)
+
     texts = []
 
     for i in docs:
@@ -338,6 +320,16 @@ def getDocumentsFromTexts():
 
     newDocs = removeStopWords(newDocs)
     return json.dumps({'docs': newDocs})
+
+
+def getDocumentsFromDocs(docs):
+    newDocs = []
+    for doc in docs:
+        tokens = tokenizer.tokenize(doc)
+        newDocs.append(tokens)
+
+    newDocs = removeStopWords(newDocs)
+    return newDocs
 
 def removeStopWords(documents):
     newDocuments = []

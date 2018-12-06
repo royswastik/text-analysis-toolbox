@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <title>LDAvis Duplex | Data Visualization</title>
+    <title>Final Project | Artificial Neural Computation</title>
     <link rel="stylesheet" href="style/main.css" />
       <link rel="stylesheet" href="style/main.scss">
       <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
@@ -24,7 +24,7 @@
           .doc-card{
              font-size: 9pt;
           }
-          .ldaVisLogo{
+          .ANC Final ProjectLogo{
               font-family: 'Noto Sans TC', sans-serif;
           }
           .logo-bottom{
@@ -60,20 +60,14 @@
                 <div class="pusher">
                     <div id="container-fluid" style=" margin-bottom: 50px;">
                             <nav id="navbar-example2" class="navbar navbar-dark bg-dark bg-light">
-                            <a  id="toggle-sidebar" class="navbar-brand" href="#"><i class="fas fa-bars"></i> &nbsp; LDAvis Duplex</a>
+                            <a  id="toggle-sidebar" class="navbar-brand" href="#"><i class="fas fa-bars"></i> &nbsp; Team 15 Final Project</a>
                             <!--<a style="cursor:pointer; color:white;">Toggle Menu</a>-->
                             </nav>
                     </div>
                 <!-- Site content !-->
                     <div class="container">
                         <div class="row" id="page1" v-bind:class="{ 'hidden': selectedPage != 1 }">
-                          <div class="text-center">
-                            <h3 class="text-center">Topic Word Relationship: Base System</h3>
-                            <p class="text-center">
-                                The two main core functionalities are presented in two panels. On the left panel, it is about giving visual features of the topics. The areas of the circles are proportional to the relative prevalences of the topics in the corpus.
-                                On the right panel which is created with a horizontal stacked bar chart that is populated when the user clicks a topic from the left panel. There are two key things highlighted in this visualization. First is the relevance of the words for a topic and are ordered by these scores and the second is the overall frequency distribution of the word in the corpora.
-                            </p>
-                        </div>
+
 
                            <div class="col-md-6" id="cluster">
                            </div>
@@ -93,14 +87,6 @@
                         <div class="container" id="inverse-word-topic">
 
                             <div class="row" id="page2" v-bind:class="{ 'hidden': selectedPage != 2 }">
-                                <div class="text-center">
-                                         <h3 class="text-center">Inverse Topic Word Relationship</h3>
-                                        <p class="text-center">
-                                            This layout visualizes the inverse word to topic relationship. Although, the base LDAvis system provides information about what words are contained in a topic, but it fails to visualize what topics does a word belong to.
-
-            The node-link diagram below shows all words with a relevance score greater than GAMMA(as in settings page). If you click a word, it will show all the topics where the word belong.
-                                        </p>
-                                </div>
 
                                 <div class="col-md-12" id="speciescollapsible">
                                     
@@ -109,13 +95,6 @@
                         </div>
 
                         <div id="page3" v-bind:class="{ 'hidden': selectedPage != 3 }">
-                            <div class="text-center">
-                                <h3 class="text-center">Correlation Analysis</h3>
-                                <p class="text-center">
-                                    The first visualization gives the scores of the word distribution in a sorted order over the corpus. This will also tell about the distribution of words over topics, documents and overall corpus.
-                                    The second implementation of the parallel coordinate system was done in highcharts where it shows association flow between document, topic, and word.
-                                </p>
-                            </div>
                             <div id="parallel-coordinate-vis">
 
                             </div>
@@ -124,12 +103,6 @@
                             </div>
                         </div>
                         <div id="page4" v-bind:class="{ 'hidden': selectedPage != 4 }">
-                           <div class="text-center">
-                                <h3 class="text-center">Word Analysis</h3>
-                                <p class="text-center">
-                                    Here Each word is represented based on the relevance it had with a topic. The data used for this visualization came from the topic word map and the size of words was based on relevance. Word Cloud show topics in different sizes based on relevance to topic and in different colors to enhance visual aesthetics. Also hovering on each word gives the overall score between a word and its frequency distribution over the corpus.
-                                </p>
-                            </div>
 
                             <div id="overall-wc" style="height: 300px;"></div>
                             <div class="row" id="topic-wcs">
@@ -137,13 +110,8 @@
                             </div>
                         </div>
                         <div id="page5" v-bind:class="{ 'hidden': selectedPage != 5 }">
-                            <p class="text-center" style="font-size: 8pt;color: #545454;margin-top: -50px;">
-                                *Due to heavy model loaded for "KMeans+Word2Vec", the analysis with Medium articles might sometime fail due to server overload, as we are using limited memory cloud server. <br />
-                                The problem is never faced with HappyDB.
-
-                            </p>
-                            <h1 class="ldaVisLogo text-center">
-                                LDAvis Duplex
+                            <h1 class="ANC Final ProjectLogo text-center">
+                                ANC Final Project Duplex
                             </h1>
                             <div class="logo-bottom"></div>
                             <h3>Settings</h3>
@@ -179,56 +147,12 @@
                                                 <label for="exampleFormControlSelect0">Text Clustering Algorithm</label>
                                                 <select  v-model="settings.selectedMethod" class="form-control" id="exampleFormControlSelect0">
                                                   <option value="LDA">Latent Dirichlet Allocation</option>
-                                                  <option value="word2Vec">KMeans on top of word vectors</option>
+                                                  <option value="word2Vec">InferSent</option>
                                                 </select>
                                               </div>
+
+
                                              <div class="form-group">
-                                                <label>Dataset</label>
-                                                <select v-model="settings.selectedDataset" class="form-control" id="exampleFormControlSelect1">
-                                                  <option value="0">HappyDB</option>
-                                                  <option value="1">Medium Articles</option>
-                                                    <option value="2">Custom</option>
-                                                </select>
-                                              </div>
-                                             <div v-bind:class="{ 'hidden': settings.selectedDataset != '0' }">
-                                                 <div v-if="(settings.end1 - settings.start1) < 10" class="alert alert-warning" role="alert">
-                                                      <p>There needs to be at least 10 documents for HappyDB.</p>
-                                                 </div>
-                                                 <div v-if="(settings.end1 - settings.start1) > 50" class="alert alert-warning" role="alert">
-                                                      <p>Due to server constraints, please select less than 50 documents for HappyDB.</p>
-                                                 </div>
-
-                                                 <div class="form-group">
-                                                    <label>Start Document Index</label>
-                                                    <input v-model="settings.start1" type="number" class="form-control" max="100000" min="0"  step="1" placeholder="0">
-                                                    <small class="form-text text-muted">Document Index starts from 0</small>
-                                                  </div>
-                                                 <div class="form-group">
-                                                    <label>End Document Index</label>
-                                                    <input v-model="settings.end1" type="number" class="form-control" max="100000"  step="1" min="5" placeholder="5">
-                                                    <small class="form-text text-muted">Document Index ends at 100000. Total 100000 HappyDB documents.</small>
-                                                  </div>
-                                             </div>
-                                             <div v-bind:class="{ 'hidden': settings.selectedDataset != '1' }">
-                                                 <div v-if="(settings.end2 - settings.start2) < 1" class="alert alert-warning" role="alert">
-                                                      <p>There needs to be at least 1 documents for Medium articles.</p>
-                                                 </div>
-                                                 <div v-if="(settings.end2 - settings.start2) > 2" class="alert alert-warning" role="alert">
-                                                      <p>Due to server constraints, please select less than 2 documents for Medium articles.</p>
-                                                 </div>
-
-                                                 <div class="form-group">
-                                                    <label>Start Document Index</label>
-                                                    <input v-model="settings.start2" type="number" class="form-control" max="337" min="0"  step="1">
-                                                    <small class="form-text text-muted">Document Index starts from 0</small>
-                                                  </div>
-                                                 <div class="form-group">
-                                                    <label>End Document Index</label>
-                                                    <input v-model="settings.end2" type="number" class="form-control" max="338" min="1"  step="1">
-                                                    <small class="form-text text-muted">Document Index ends at 338. Total 338 Medium Articles.</small>
-                                                  </div>
-                                             </div>
-                                             <div class="form-group" v-bind:class="{ 'hidden': settings.selectedDataset != '2' }">
                                                 <label for="exampleFormControlTextarea1">Enter text here.</label>
                                                 <textarea v-model="newDoc" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
                                                  <button v-on:click="addNewDoc">Add Doc</button>
@@ -247,36 +171,13 @@
 
                                     </div>
 
-                                    <div class="card note-card" style="margin-top:10px;">
-                                         <div class="card-body">
-                                             <h4>Visualization System Parameters</h4>
-                                             <div class="form-group">
-                                                 <label>Topic to document threshold (ALPHA)</label>
-                                                 <input v-model="params.topicThreshold" type="number" step="0.001" class="form-control" max="1" min="0">
-                                                 <small>For LDA: It denotes probability score above which a topic would be considered to be in a document. </small>
-                                                 <small>For Kmeans+Word2Vec: It denotes cosine similarity score between topic & document above which a topic would be considered to be in a document. </small>
-                                             </div>
-                                             <div class="form-group">
-                                                 <label>Word to topic threshold (BETA)</label>
-                                                 <input v-model="params.wordThreshold" type="number"  step="0.001" class="form-control" max="1" min="0">
-                                                 <small>For LDA: It denotes probability score above which a word would be considered to be in a topic. </small>
-                                                 <small>For Kmeans+Word2Vec: It denotes cosine similarity score between word & topic above which a word would be considered to be in a topic. </small>
-                                             </div>
-                                             <div class="form-group">
-                                                 <label>Overall Word threshold (GAMMA)</label>
-                                                 <input v-model="params.wordOverallThreshold" type="number"  step="0.001" class="form-control" max="1" min="0">
-                                                 <small>For LDA: It denotes probability score above which a word would be considered to be shown in inverse-word-topic relationship visualization. </small>
-                                                 <small>For Kmeans+Word2Vec: It denotes cosine similarity score between word & overall corpus vector above which a word would be considered to be shown in inverse-word-topic relationship visualization. </small>
-                                             </div>
-                                         </div>
-                                    </div>
+
 
                                 </div>
                                 <div class="col-sm-6">
-                                    <div id="new-documents" v-bind:class="{ 'hidden': (settings.selectedDataset != '2') }">
+                                    <div id="new-documents">
                                         <div  v-bind:class="{ 'hidden': (showProcessed || newDocs == 0) }">
-                                            <h4>Unprocessed Documents</h4>
-                                            <button class="btn btn-success btn-block" v-on:click="processDocs">Process Documents</button>
+                                            <h4>Documents</h4>
                                             <div class="card-columns">
                                                 <div v-for="doc in newDocs" class="card doc-card">
                                                     <div class="card-body">

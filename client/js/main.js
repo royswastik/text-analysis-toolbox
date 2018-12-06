@@ -50,7 +50,7 @@ function getDocs(texts) {
 }
 
 function getAnalysis(method, success, fail) {
-  let docs = window.documents;
+  let docs = vueApp.newDocs;
   let fnc = x => x;
   if (method === "LDA") {
     fnc = getLDAClusters;
