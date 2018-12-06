@@ -28,6 +28,8 @@ model = InferSent(params_model)
 model.load_state_dict(torch.load(MODEL_PATH))
 W2V_PATH = './dataset/GloVe/glove.840B.300d.txt'
 model.set_w2v_path(W2V_PATH)
+model.build_vocab_k_words(K=100000)
+
 def cosine(u, v):
     return np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
 # InferSent imports end
