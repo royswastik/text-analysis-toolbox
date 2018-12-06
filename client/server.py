@@ -15,11 +15,40 @@ import gensim
 from sklearn.decomposition import PCA
 from collections import Counter
 from nltk.stem.wordnet import WordNetLemmatizer
+import nltk
 import operator
+
+# InferSent imports start
+import torch
+from models import InferSent
+MODEL_PATH =  './encoder/infersent1.pkl'
+params_model = {'bsize': 64, 'word_emb_dim': 300, 'enc_lstm_dim': 2048,
+                'pool_type': 'max', 'dpout_model': 0.0, 'version': 1}
+model = InferSent(params_model)
+model.load_state_dict(torch.load(MODEL_PATH))
+W2V_PATH = './dataset/GloVe/glove.840B.300d.txt'
+model.set_w2v_path(W2V_PATH)
+def cosine(u, v):
+    return np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
+# InferSent imports end
+
 app = Flask(__name__)
 en_stop = get_stop_words('en')
 tokenizer = RegexpTokenizer(r'\w+')
 lmtzr = WordNetLemmatizer()
+
+sentence_re = r'(?:(?:[A-Z])(?:.[A-Z])+.?)|(?:\w+(?:-\w+)*)|(?:\$?\d+(?:.\d+)?%?)|(?:...|)(?:[][.,;"\'?():-_`])'
+stemmer = nltk.stem.porter.PorterStemmer()
+grammar = r"""
+    NBAR:
+        {<NN.*|JJ>*<NN.*>}  # Nouns and Adjectives, terminated with Nouns
+
+    NP:
+        {<NBAR>}
+        {<NBAR><IN><NBAR>}  # Above, connected with in/of/etc...
+"""
+chunker = nltk.RegexpParser(grammar)
+
 
 @app.route('/')
 def index():
@@ -50,27 +79,10 @@ def get2DVectors():
 def getWord2Vec_TopicClusters():
     post = request.get_json()
     print(post)
-    start_page = int(post["start"])
-    end_page = int(post["end"])
-    db_selected = int(post["selected"])
-    if db_selected == 0:
-        df = pd.read_csv("cleaned_hm.csv")
-        dfRange = df.iloc[start_page:end_page]
-        cleaned_text = dfRange["cleaned_hm"].tolist()
-        docs = []
-        for l in cleaned_text:
-            docs.append(l.split())
-    elif db_selected==1:
-        df = pd.read_csv("articles.csv")
-        dfRange = df.iloc[start_page:end_page]
-        text = dfRange["text"].tolist()
-        docs = []
-        for l in text:
-            docs.append(l.split())
-    else:
-        docs = post["docs"]
-    print(docs)
-    res = getWord2VecClusters(docs)
+    docs = post["docs"]
+    newDocs = getInfersentDocumentsFromDocs(docs)
+    print(newDocs)
+    res = getWord2VecClusters(newDocs)
     return jsonify(res)
 
 @app.route("/api/getLDAData", methods=['POST'])
@@ -214,10 +226,11 @@ def getWord2VecClusters(docs):
         for document in documents:
             word_set |= set(document)
         word_list = list(word_set)
-        model = Word2Vec([word_list], size=100, window=5, min_count=1, workers=4)
+        # model = Word2Vec([word_list], size=100, window=5, min_count=1, workers=4)
         embeddings = []
         for index, word in enumerate(word_list):
-            emb = model.wv[word]
+            # emb = model.wv[word]
+            emb = model.encode([word])[0]
             embeddings.append(emb)
         res = {
             "word_embeddings": [],
@@ -232,10 +245,11 @@ def getWord2VecClusters(docs):
         labels, centroids = make_clusters(embeddings, word_list)
         res["overall_centroid"] = find_centroid(centroids)
         res["topic_embeddings"] = centroids
-        document_embeddings = [find_centroid([model.wv[word] for word in d]) for d in documents]
+        document_embeddings = [find_centroid([model.encode([word])[0] for word in d]) for d in documents]
         res["document_embeddings"] = document_embeddings
         for index, word in enumerate(word_list):
-            emb = model.wv[word]
+            emb = model.encode([word])[0]
+            # emb = model.wv[word]
             embeddings.append(emb)
             res["word_embeddings"].append([word, labels[index], emb])
             res["document_word"][word] = cosine(emb, res["overall_centroid"])
@@ -331,6 +345,14 @@ def getDocumentsFromDocs(docs):
     newDocs = removeStopWords(newDocs)
     return newDocs
 
+def getInfersentDocumentsFromDocs(docs):
+    newDocs = []
+    for doc in docs:
+        tokens = get_noun_phrases(doc)
+        newDocs.append(tokens)
+
+    return newDocs
+
 def removeStopWords(documents):
     newDocuments = []
     for doc in documents:
@@ -357,6 +379,46 @@ def to_json(data):
     if isinstance(data, dict):
         return {key_to_json(key): to_json(data[key]) for key in data}
     raise TypeError
+
+
+def leaves(tree):
+    leaves=[]
+    """Finds NP (nounphrase) leaf nodes of a chunk tree."""
+    for subtree in tree.subtrees(filter = lambda t: t.label()=='NP'):
+        leaves.append(subtree.leaves())
+    return leaves
+
+def normalise(word):
+    """Normalises words to lowercase and stems and lemmatizes it."""
+    word = word.lower()
+    # word = stemmer.stem_word(word) #if we consider stemmer then results comes with stemmed word, but in this case word will not match with comment
+    word = lmtzr.lemmatize(word)
+    return word
+
+def acceptable_word(word):
+    """Checks conditions for acceptable word: length, stopword. We can increase the length if we want to consider large phrase"""
+    accepted = bool(2 <= len(word) <= 40
+        and word.lower() not in en_stop)
+    return accepted
+
+
+def get_terms(tree):
+    terms = []
+    for leaf in leaves(tree):
+        term = [ normalise(w) for w,t in leaf if acceptable_word(w)]
+        terms.append(term)
+    return terms
+
+def get_noun_phrases(sentence):
+    noun_phrases = []
+    toks = nltk.regexp_tokenize(sentence, sentence_re)
+    postoks = nltk.tag.pos_tag(toks)
+    tree = chunker.parse(postoks)
+    terms = get_terms(tree)
+    noun_phrases = [' '.join(chunk) for chunk in terms]
+    return noun_phrases
+
+
 
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
